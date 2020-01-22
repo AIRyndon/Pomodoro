@@ -11,6 +11,10 @@ using Pomodoro.Models;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Pomodoro.Repos.Interfaces;
+using Pomodoro.Repos;
+using Pomodoro.Data.Repos;
+using Pomodoro.Hubs;
 
 namespace Pomodoro
 {
@@ -29,18 +33,31 @@ namespace Pomodoro
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
-
+            
+            services.AddScoped(typeof(IBaseRepo<>), typeof(BaseRepo<>));
+            services.AddScoped<IAppUserRepo, AppUserRepo>();
+            services.AddScoped<ITimerSettingRepo, TimerSettingRepo>();
+            services.AddScoped<ITodoItemRepo, TodoItemRepo>();
+            services.AddScoped<ITodoListRepo, TodoListRepo>();
             services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddIdentityServer()
                 .AddApiAuthorization<AppUser, ApplicationDbContext>();
 
-            services.AddAuthentication()
-                .AddIdentityServerJwt();
+            services.AddAuthentication().AddGoogle(google =>
+            {
+                google.ClientId = Configuration["Authentication:Google:ClientId"];
+                google.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+            }).AddMicrosoftAccount(microsoft =>
+            {
+                microsoft.ClientId = Configuration["Authentication:Microsoft:ClientId"];
+                microsoft.ClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
+            }).AddIdentityServerJwt();
 
             services.AddControllersWithViews();
             services.AddRazorPages();
+            services.AddSignalR();
 
             // In production, the React files will be served from this directory
             services.AddSpaStaticFiles(configuration =>
@@ -75,6 +92,7 @@ namespace Pomodoro
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
+                endpoints.MapHub<StatsHub>("/stats-hub");
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller}/{action=Index}/{id?}");

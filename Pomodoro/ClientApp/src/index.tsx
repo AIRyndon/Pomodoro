@@ -1,18 +1,19 @@
 import 'bootstrap/dist/css/bootstrap.css';
+import '@fortawesome/fontawesome-free/css/all.css';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { BrowserRouter } from 'react-router-dom';
 import App from './App';
 //import registerServiceWorker from './registerServiceWorker';
 
-const baseUrl = document.getElementsByTagName('base')[0].getAttribute('href');
-const rootElement = document.getElementById('root');
+const baseUrl: any = document.getElementsByTagName('base')[0].getAttribute('href');
+let rootElement = document.getElementById('root');
 
 ReactDOM.render(
-  <BrowserRouter basename={baseUrl}>
-    <App />
-  </BrowserRouter>,
-  rootElement);
+    <BrowserRouter basename={baseUrl}>
+        <App />
+    </BrowserRouter>,
+    rootElement);
 
 // Uncomment the line above that imports the registerServiceWorker function
 // and the line below to register the generated service worker.
