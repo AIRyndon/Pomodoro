@@ -60,6 +60,7 @@ export const TimerSetting = (props: any) => {
         setShowSettings(!showSettings);
     }
 
+    //TODO - continue on finishing timer setting logic
     const updateTimerSetting = async () => {
         toggleSettingsView();
         authenticated = await authService.isAuthenticated();
