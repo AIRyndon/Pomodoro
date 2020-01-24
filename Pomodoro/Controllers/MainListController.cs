@@ -16,7 +16,6 @@ namespace Pomodoro.Controllers
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-
     public class MainListController : ControllerBase
     {
         private readonly ITodoListRepo todoList;

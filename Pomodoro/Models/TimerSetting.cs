@@ -9,5 +9,6 @@
         public int ShortBreakMinutes { get; set; }
         public int LongBreakMinutes { get; set; }
         public int LongBreakInterval { get; set; }
+        public bool ActiveSetting { get; set; }
     }
 }

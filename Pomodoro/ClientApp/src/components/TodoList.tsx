@@ -43,8 +43,7 @@ export const TodoList = (props: any) =>
                         <Input disabled={inputDisabled}
                             placeholder="List Description"
                             value={newListDescription}
-                            onChange={newListChanged}
-                            onBlur={handleAddList} />
+                            onChange={newListChanged} />
                         <InputGroupAddon addonType="append">
                             <Button disabled={inputDisabled} title="add todo list"
                                 onClick={handleAddList}>Add list</Button>
@@ -63,11 +62,11 @@ export const TodoList = (props: any) =>
         let response: any;
         if (urlPath === '/todo-lists')
         {
-            response = await apiRequest('api/todolists', 'get');
+            response = await apiRequest('api/todoLists', 'get');
         }
         else
         {
-            response = await apiRequest('api/mainlist', 'get');
+            response = await apiRequest('api/mainList', 'get');
         }
 
         const data: ITodoList[] = response;
@@ -89,7 +88,7 @@ export const TodoList = (props: any) =>
             todoItems: []
         };
 
-        await apiRequest('api/todolists', 'post', 0, newList);
+        await apiRequest('api/todoLists', 'post', 0, newList);
         setNewList({});
     };
 
@@ -121,7 +120,7 @@ export const TodoList = (props: any) =>
 
     const updateList = async (item?: ITodoList, id?: number) =>
     {
-        await apiRequest('api/todolists', 'put', id, item);
+        await apiRequest('api/todoLists', 'put', id, item);
     };
 
     const listUpdating = (event: any) =>
@@ -143,7 +142,7 @@ export const TodoList = (props: any) =>
 
     const deleteList = async (id?: number) =>
     {
-        const deletedList:ITodoList = await apiRequest('api/todolists', 'delete', id);
+        const deletedList:ITodoList = await apiRequest('api/todoLists', 'delete', id);
         setDeletedList(deletedList);
     };
 
@@ -161,13 +160,13 @@ export const TodoList = (props: any) =>
             todoListId: id
         }
 
-        const response:ITodoItem = await apiRequest('api/todoitems', 'post', 0, item);
+        const response:ITodoItem = await apiRequest('api/todoItems', 'post', 0, item);
         setAddedItem(response);
     };
 
     const deleteTodoItem = async (id?: number) =>
     {
-        const response:ITodoItem = await apiRequest('api/todoitems', 'delete', id);
+        const response:ITodoItem = await apiRequest('api/todoItems', 'delete', id);
         setDeletedItem(response);
     };
 

@@ -5,18 +5,17 @@ import { Button } from 'reactstrap';
 import authService from './api-authorization/AuthorizeService';
 import { Timer } from './Timer';
 
-export interface ITimerSetting
-{
+export interface ITimerSetting {
     id?: number,
     description?: string,
     sessionMinutes: number,
     shortBreakMinutes: number,
     longBreakMinutes: number,
-    longBreakInterval: number
+    longBreakInterval: number,
+    activeSetting: false
 }
 
-export const TimerSetting = (props: any) =>
-{
+export const TimerSetting = (props: any) => {
     let authenticated = false;
     const [showSettings, setShowSettings] = useState(false);
     const [timerSetting, setTimerSetting] = useState<ITimerSetting>({
@@ -24,28 +23,24 @@ export const TimerSetting = (props: any) =>
         sessionMinutes: 15,
         shortBreakMinutes: 5,
         longBreakMinutes: 15,
-        longBreakInterval: 4
+        longBreakInterval: 4,
+        activeSetting: false
     });
 
-    const getTimerSetting = async () =>
-    {
+    const getTimerSetting = async () => {
         authenticated = await authService.isAuthenticated();
 
-        if (authenticated)
-        {
-            let data: ITimerSetting = await apiRequest('api/timersettings', 'get');
+        if (authenticated) {
+            let data: ITimerSetting = await apiRequest('api/timerSettings', 'get');
 
-            if (data !== null)
-            {
+            if (data !== null) {
                 setTimerSetting(data);
             }
         }
     }
 
-    const timerSettingUpdating = async (event: any) =>
-    {
-        switch (event.target.id)
-        {
+    const timerSettingUpdating = async (event: any) => {
+        switch (event.target.id) {
             case 'session-minutes':
                 setTimerSetting({ ...timerSetting, sessionMinutes: parseInt(event.target.value) });
                 break;
@@ -61,31 +56,25 @@ export const TimerSetting = (props: any) =>
         }
     }
 
-    const toggleSettingsView = async () =>
-    {
+    const toggleSettingsView = async () => {
         setShowSettings(!showSettings);
     }
 
-    const updateTimerSetting = async () =>
-    {
+    const updateTimerSetting = async () => {
         toggleSettingsView();
         authenticated = await authService.isAuthenticated();
-        let method = "";
 
-        if (authenticated)
-        {
-            method = (timerSetting.id == 0) ? 'post' : 'put';
-            await apiRequest('api/timersettings', method, timerSetting.id, timerSetting);
+        if (authenticated) {
+            let method = timerSetting.id == 0 ? 'post' : 'put';
+            await apiRequest('api/timerSettings', method, timerSetting.id, timerSetting);
         }
     }
 
-    useEffect(() =>
-    {
+    useEffect(() => {
         getTimerSetting();
     }, []);
 
-    useEffect(() =>
-    {
+    useEffect(() => {
 
     }, [timerSetting]);
 
@@ -107,6 +96,11 @@ export const TimerSetting = (props: any) =>
                                 <p className="mb-4">Set how long you want your <code> Work</code> and <code> Break </code>
                                     should be.
                                 </p>
+                                <Button onClick={updateTimerSetting}
+                                    className="btn-light float-right"
+                                    id="settings-back-button">
+                                    <i className="fas fa-times"></i>
+                                </Button>
                                 <div id="timer-input">
                                     <div className="form-group">
                                         <label>Session Duration</label>
