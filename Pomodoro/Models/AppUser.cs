@@ -6,7 +6,7 @@ namespace Pomodoro.Models
     public class AppUser : IdentityUser
     {
         public List<TodoList> TodoLists { get; set; }
-        public TimerSetting TimerSetting { get; set; }
+        public List<TimerSetting> TimerSetting { get; set; }
 
     }
 }

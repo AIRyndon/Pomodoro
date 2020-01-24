@@ -26,7 +26,7 @@ export const apiRequest = async (uri: string, method: string, id: number = 0, bo
         headers: headers
     });
 
-    if (response.status === 204 ||response.status === 404) {
+    if (response.status === 204 ||response.status === 404 || response.status === 400) {
         return;
     }
     else {
