@@ -54,21 +54,18 @@ export const TodoList = (props: any) => {
 
     const getAllLists = async () => {
 
-        if (await authService.isAuthenticated()) {
-
-            let response: any;
-
-            if (urlPath === '/todo-lists') {
-                response = await apiRequest('api/todoLists', 'get');
-            }
-            else {
-                response = await apiRequest('api/mainList', 'get');
-            }
-
-            const data: ITodoList[] = response;
-            setLists(data);
-            console.log(lists);
+        let response: any;
+        if (urlPath === '/todo-lists') {
+            response = await apiRequest('api/todoLists', 'get');
         }
+        else {
+            response = await apiRequest('api/mainList', 'get');
+        }
+
+        const data: ITodoList[] = response;
+        setLists(data);
+        console.log(lists);
+
     };
 
     const handleAddList = async () => {
@@ -158,6 +155,7 @@ export const TodoList = (props: any) => {
     }, [newList, deletedList, addedItem, deletedItem]);
 
     useEffect(() => {
+
         authService.getUser().then((result) => {
             setAuthUser(result);
         }).catch((error) => console.log(error.toString()));

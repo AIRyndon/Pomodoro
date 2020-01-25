@@ -1,5 +1,6 @@
 ﻿import React, { useState, useEffect } from 'react'
 import './Timer.css'
+import './TimerSetting.css'
 import { apiRequest } from '../helpers/AuthorizeTokenHelper';
 import { Button } from 'reactstrap';
 import authService from './api-authorization/AuthorizeService';
@@ -17,6 +18,7 @@ export interface ITimerSetting {
 
 export const TimerSetting = (props: any) => {
 
+    const [authenticated, setAuthentication] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [timerSetting, setTimerSetting] = useState<ITimerSetting>({
         id: 0,
@@ -29,7 +31,8 @@ export const TimerSetting = (props: any) => {
 
     const getTimerSetting = async () => {
 
-        if (await authService.isAuthenticated()) {
+        setAuthentication(await authService.isAuthenticated());
+        if (authenticated) {
             let data: ITimerSetting = await apiRequest('api/timerSettings', 'get');
 
             if (data !== null) {
@@ -63,14 +66,14 @@ export const TimerSetting = (props: any) => {
     const updateTimerSetting = async () => {
         toggleSettingsView();
 
-        if (await authService.isAuthenticated()) {
+        if (authenticated) {
             let method = timerSetting.id === 0 ? 'post' : 'put';
             await apiRequest('api/timerSettings', method, timerSetting.id, timerSetting);
         }
     }
 
     const addTimerSetting = async () => {
-        if (await authService.isAuthenticated()) {
+        if (authenticated) {
             let method = timerSetting.id == 0 ? 'post' : 'put';
             //await apiRequest('api/timerSettings', method, timerSetting.id, timerSetting);
             console.log('authenticated');
@@ -105,8 +108,8 @@ export const TimerSetting = (props: any) => {
                                     should be.
                                 </p>
                                 <Button onClick={addTimerSetting}
-                                    className="btn-light float-right"
-                                    id="">
+                                    className={`btn-light float-right ${authenticated ? '' : 'hide'}`}
+                                    id="add-timer-setting">
                                     <i className="far fa-arrow-alt-circle-right"></i>
                                 </Button>
                                 <div id="timer-input">
