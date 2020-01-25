@@ -104,7 +104,7 @@ export const Timer = (props: any) =>
             setTotalSeconds(props.timerSetting.sessionMinutes * 60);
             setTimerCounter(props.timerSetting.sessionMinutes * 60);
 
-        } else if (sessionCount % props.timerSetting.longBreakInterval == 0)
+        } else if (sessionCount % props.timerSetting.longBreakInterval === 0)
         {
             console.log("Long break");
             setTotalSeconds(props.timerSetting.longBreakMinutes * 60);

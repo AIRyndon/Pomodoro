@@ -66,7 +66,7 @@ export const TimerSetting = (props: any) => {
         authenticated = await authService.isAuthenticated();
 
         if (authenticated) {
-            let method = timerSetting.id == 0 ? 'post' : 'put';
+            let method = timerSetting.id === 0 ? 'post' : 'put';
             await apiRequest('api/timerSettings', method, timerSetting.id, timerSetting);
         }
     }
