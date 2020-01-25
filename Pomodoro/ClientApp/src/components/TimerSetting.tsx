@@ -16,7 +16,7 @@ export interface ITimerSetting {
 }
 
 export const TimerSetting = (props: any) => {
-    let authenticated = false;
+
     const [showSettings, setShowSettings] = useState(false);
     const [timerSetting, setTimerSetting] = useState<ITimerSetting>({
         id: 0,
@@ -28,9 +28,8 @@ export const TimerSetting = (props: any) => {
     });
 
     const getTimerSetting = async () => {
-        authenticated = await authService.isAuthenticated();
 
-        if (authenticated) {
+        if (await authService.isAuthenticated()) {
             let data: ITimerSetting = await apiRequest('api/timerSettings', 'get');
 
             if (data !== null) {
@@ -63,12 +62,20 @@ export const TimerSetting = (props: any) => {
     //TODO - continue on finishing timer setting logic
     const updateTimerSetting = async () => {
         toggleSettingsView();
-        authenticated = await authService.isAuthenticated();
 
-        if (authenticated) {
+        if (await authService.isAuthenticated()) {
             let method = timerSetting.id === 0 ? 'post' : 'put';
             await apiRequest('api/timerSettings', method, timerSetting.id, timerSetting);
         }
+    }
+
+    const addTimerSetting = async () => {
+        if (await authService.isAuthenticated()) {
+            let method = timerSetting.id == 0 ? 'post' : 'put';
+            //await apiRequest('api/timerSettings', method, timerSetting.id, timerSetting);
+            console.log('authenticated');
+        }
+        console.log('Hello');
     }
 
     useEffect(() => {
@@ -97,10 +104,10 @@ export const TimerSetting = (props: any) => {
                                 <p className="mb-4">Set how long you want your <code> Work</code> and <code> Break </code>
                                     should be.
                                 </p>
-                                <Button onClick={updateTimerSetting}
+                                <Button onClick={addTimerSetting}
                                     className="btn-light float-right"
-                                    id="settings-back-button">
-                                    <i className="fas fa-times"></i>
+                                    id="">
+                                    <i className="far fa-arrow-alt-circle-right"></i>
                                 </Button>
                                 <div id="timer-input">
                                     <div className="form-group">

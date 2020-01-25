@@ -8,16 +8,14 @@ import toast from 'toasted-notes';
 import 'toasted-notes/src/styles.css';
 import './TodoList.css';
 
-interface ITodoList
-{
+interface ITodoList {
     id?: number,
     description: string,
     mainList: boolean,
     todoItems: ITodoItem[]
 }
 
-export const TodoList = (props: any) =>
-{
+export const TodoList = (props: any) => {
     const urlPath = props.location.pathname;
     const [lists, setLists] = useState<ITodoList[]>([]);
     const [newList, setNewList] = useState({});
@@ -30,12 +28,10 @@ export const TodoList = (props: any) =>
     const [signalR, setSignalR] = useState();
     const [authUser, setAuthUser] = useState();
 
-    const showAddListArea = () =>
-    {
+    const showAddListArea = () => {
         let element: any;
 
-        if (urlPath === '/todo-lists')
-        {
+        if (urlPath === '/todo-lists') {
             element =
                 <>
                     <h2>Your Todos</h2>
@@ -50,38 +46,37 @@ export const TodoList = (props: any) =>
                         </InputGroupAddon>
                     </InputGroup>
                 </>
-        } else
-        {
+        } else {
             element = <h3>Your pinned task</h3>
         }
         return element;
     }
 
-    const getAllLists = async () =>
-    {
-        let response: any;
-        if (urlPath === '/todo-lists')
-        {
-            response = await apiRequest('api/todoLists', 'get');
-        }
-        else
-        {
-            response = await apiRequest('api/mainList', 'get');
-        }
+    const getAllLists = async () => {
 
-        const data: ITodoList[] = response;
-        setLists(data);
-        console.log(lists);
+        if (await authService.isAuthenticated()) {
+
+            let response: any;
+
+            if (urlPath === '/todo-lists') {
+                response = await apiRequest('api/todoLists', 'get');
+            }
+            else {
+                response = await apiRequest('api/mainList', 'get');
+            }
+
+            const data: ITodoList[] = response;
+            setLists(data);
+            console.log(lists);
+        }
     };
 
-    const handleAddList = async () =>
-    {
+    const handleAddList = async () => {
         await signalR.invoke("SendListAdded", `${authUser.name} created a list just now`);
         await addList();
     };
 
-    const addList = async () =>
-    {
+    const addList = async () => {
         let newList: ITodoList = {
             description: newListDescription ? newListDescription : 'New List',
             mainList: false,
@@ -92,25 +87,20 @@ export const TodoList = (props: any) =>
         setNewList({});
     };
 
-    const newListChanged = (event: any) =>
-    {
+    const newListChanged = (event: any) => {
         setNewListDescription(event.target.value);
     };
 
-    const pinToHomePage = async (item: ITodoList, id: number) =>
-    {
-        lists.forEach(async (list) =>
-        {
+    const pinToHomePage = async (item: ITodoList, id: number) => {
+        lists.forEach(async (list) => {
             //only one list item can be put in the home page, this makes sure all the other lists
             //will have the flag set to false. The downside is all the calls back to the server
-            if (list.id === id)
-            {
+            if (list.id === id) {
                 item = { ...list };
                 item.mainList = true;
                 await updateList(item, id);
             }
-            else if (list.mainList)
-            {
+            else if (list.mainList) {
                 //maybe this branch would at least help? only two calls back to the server.
                 list.mainList = false;
                 await updateList(list, list.id);
@@ -118,20 +108,16 @@ export const TodoList = (props: any) =>
         });
     }
 
-    const updateList = async (item?: ITodoList, id?: number) =>
-    {
+    const updateList = async (item?: ITodoList, id?: number) => {
         await apiRequest('api/todoLists', 'put', id, item);
     };
 
-    const listUpdating = (event: any) =>
-    {
+    const listUpdating = (event: any) => {
         const value = event.target.value;
 
-        lists.forEach((list) =>
-        {
+        lists.forEach((list) => {
             //look for the correct list item to update
-            if (list.id === parseInt(event.target.id))
-            {
+            if (list.id === parseInt(event.target.id)) {
                 list.description = value;
                 setListToUpdate({ ...list });
             }
@@ -140,46 +126,39 @@ export const TodoList = (props: any) =>
         setLists(lists);
     };
 
-    const deleteList = async (id?: number) =>
-    {
-        const deletedList:ITodoList = await apiRequest('api/todoLists', 'delete', id);
+    const deleteList = async (id?: number) => {
+        const deletedList: ITodoList = await apiRequest('api/todoLists', 'delete', id);
         setDeletedList(deletedList);
     };
 
-    const handleAddItem = async (id?: number) =>
-    {
+    const handleAddItem = async (id?: number) => {
         await signalR.invoke("SendItemAdded", `${authUser.name} added a todo item just now`);
         await addTodoItem(id);
     };
 
-    const addTodoItem = async (id?: number) =>
-    {
+    const addTodoItem = async (id?: number) => {
         let item: ITodoItem = {
             description: 'New Item',
             finished: false,
             todoListId: id
         }
 
-        const response:ITodoItem = await apiRequest('api/todoItems', 'post', 0, item);
+        const response: ITodoItem = await apiRequest('api/todoItems', 'post', 0, item);
         setAddedItem(response);
     };
 
-    const deleteTodoItem = async (id?: number) =>
-    {
-        const response:ITodoItem = await apiRequest('api/todoItems', 'delete', id);
+    const deleteTodoItem = async (id?: number) => {
+        const response: ITodoItem = await apiRequest('api/todoItems', 'delete', id);
         setDeletedItem(response);
     };
 
-    useEffect(() =>
-    {
+    useEffect(() => {
         getAllLists();
 
     }, [newList, deletedList, addedItem, deletedItem]);
 
-    useEffect(() =>
-    {
-        authService.getUser().then((result) =>
-        {
+    useEffect(() => {
+        authService.getUser().then((result) => {
             setAuthUser(result);
         }).catch((error) => console.log(error.toString()));
 
@@ -188,22 +167,19 @@ export const TodoList = (props: any) =>
         let connection = new SignalR.HubConnectionBuilder()
             .withUrl('/stats-hub').build();
 
-        connection.on("ReceiveListAdded", (message) =>
-        {
+        connection.on("ReceiveListAdded", (message) => {
             toast.notify(message, {
                 position: 'bottom-right'
             });
         });
 
-        connection.on("ReceiveItemAdded", (message) =>
-        {
+        connection.on("ReceiveItemAdded", (message) => {
             toast.notify(message, {
                 position: 'bottom-right'
             });
         });
 
-        connection.start().then((result) =>
-        {
+        connection.start().then((result) => {
             setInputDisabled(false);
 
             return result;
@@ -211,8 +187,7 @@ export const TodoList = (props: any) =>
 
         setSignalR(connection);
 
-        return () =>
-        {
+        return () => {
             connection.off("ReceiveListAdded");
             connection.off("ReceiveItemAdded");
         };
