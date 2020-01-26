@@ -13,30 +13,32 @@ export interface ITimerSetting {
     shortBreakMinutes: number,
     longBreakMinutes: number,
     longBreakInterval: number,
-    activeSetting: false
+    activeSetting: boolean
 }
 
 export const TimerSetting = (props: any) => {
 
     const [authenticated, setAuthentication] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
-    const [timerSetting, setTimerSetting] = useState<ITimerSetting>({
+    const [timerSettings, setTimerSettings] = useState<ITimerSetting[]>([]);
+    const [currentSetting, setCurrentSetting] = useState<ITimerSetting>({
         id: 0,
+        description: 'Default',
         sessionMinutes: 15,
         shortBreakMinutes: 5,
         longBreakMinutes: 15,
         longBreakInterval: 4,
-        activeSetting: false
+        activeSetting: true
     });
 
-    const getTimerSetting = async () => {
+    const getAllTimerSettings = async () => {
 
         setAuthentication(await authService.isAuthenticated());
         if (authenticated) {
-            let data: ITimerSetting = await apiRequest('api/timerSettings', 'get');
 
-            if (data !== null) {
-                setTimerSetting(data);
+            let response: ITimerSetting[] = await apiRequest('api/timerSettings', 'get');
+            if (response.length > 0) {
+                setTimerSettings(response);
             }
         }
     }
@@ -44,60 +46,82 @@ export const TimerSetting = (props: any) => {
     const timerSettingUpdating = async (event: any) => {
         switch (event.target.id) {
             case 'session-minutes':
-                setTimerSetting({ ...timerSetting, sessionMinutes: parseInt(event.target.value) });
+                setCurrentSetting({ ...currentSetting, sessionMinutes: parseInt(event.target.value) });
                 break;
             case 'short-break-minutes':
-                setTimerSetting({ ...timerSetting, shortBreakMinutes: parseInt(event.target.value) });
+                setCurrentSetting({ ...currentSetting, shortBreakMinutes: parseInt(event.target.value) });
                 break;
             case 'long-break-minutes':
-                setTimerSetting({ ...timerSetting, longBreakMinutes: parseInt(event.target.value) });
+                setCurrentSetting({ ...currentSetting, longBreakMinutes: parseInt(event.target.value) });
                 break;
             case 'break-interval':
-                setTimerSetting({ ...timerSetting, longBreakInterval: parseInt(event.target.value) });
+                setCurrentSetting({ ...currentSetting, longBreakInterval: parseInt(event.target.value) });
                 break;
         }
     }
 
     const toggleSettingsView = async () => {
+
         setShowSettings(!showSettings);
+        await updateTimerSetting();      
     }
 
     //TODO - continue on finishing timer setting logic
     const updateTimerSetting = async () => {
-        toggleSettingsView();
 
         if (authenticated) {
-            let method = timerSetting.id === 0 ? 'post' : 'put';
-            await apiRequest('api/timerSettings', method, timerSetting.id, timerSetting);
+
+            if (currentSetting.id === 0) {
+                await addTimerSetting();
+            }
+            else {
+                await apiRequest('api/timerSettings', 'put', currentSetting.id, currentSetting);
+            }
         }
     }
 
     const addTimerSetting = async () => {
+
         if (authenticated) {
-            let method = timerSetting.id == 0 ? 'post' : 'put';
-            //await apiRequest('api/timerSettings', method, timerSetting.id, timerSetting);
-            console.log('authenticated');
+
+            let response: ITimerSetting = await apiRequest('api/timerSettings', 'post', 0, currentSetting);
+            console.log('added timer setting');
+            console.log(response);
+            setCurrentSetting(response);
+
+            if (timerSettings.length > 0) {
+
+                timerSettings.forEach(async setting => {
+
+                    if (setting.activeSetting) {
+
+                        setting.activeSetting = false;
+                        await apiRequest('api/timerSettings', 'put', setting.id, setting);
+                    }
+                });
+            }
+
+            setTimerSettings([...timerSettings, response]);
         }
-        console.log('Hello');
     }
 
     useEffect(() => {
-        getTimerSetting();
+        getAllTimerSettings();
     }, []);
 
     useEffect(() => {
 
-    }, [timerSetting]);
+    }, [currentSetting]);
 
     return (
         <>
-            <Timer timerSetting={timerSetting} />
+            <Timer timerSetting={currentSetting} />
             <div className={`settings-page ${showSettings ? 'show' : ''}`} id="settings-page-slide">
                 <div className="row">
                     <div className="col-lg-12">
                         <div className="card mb-2">
                             <div className="card-header py-2">
-                                <Button onClick={updateTimerSetting}
+                                <Button onClick={toggleSettingsView}
                                     className="btn-light float-right"
                                     id="settings-back-button">
                                     <i className="fas fa-times"></i>
@@ -114,11 +138,21 @@ export const TimerSetting = (props: any) => {
                                 </Button>
                                 <div id="timer-input">
                                     <div className="form-group">
+                                        <label>Description</label>
+                                        <div className="d-flex flex-lg-row">
+                                            <input type="number" className="form-control"
+                                                id="session-minutes"
+                                                value={currentSetting.description}
+                                                onChange={timerSettingUpdating} />
+                                            <label className="p-2">Minutes</label>
+                                        </div>
+                                    </div>
+                                    <div className="form-group">
                                         <label>Session Duration</label>
                                         <div className="d-flex flex-lg-row">
                                             <input type="number" className="form-control"
                                                 id="session-minutes"
-                                                value={timerSetting.sessionMinutes}
+                                                value={currentSetting.sessionMinutes}
                                                 onChange={timerSettingUpdating} />
                                             <label className="p-2">Minutes</label>
                                         </div>
@@ -129,7 +163,7 @@ export const TimerSetting = (props: any) => {
                                         <div className="d-flex flex-lg-row">
                                             <input type="number" className="form-control"
                                                 id="short-break-minutes"
-                                                value={timerSetting.shortBreakMinutes}
+                                                value={currentSetting.shortBreakMinutes}
                                                 onChange={timerSettingUpdating} />
                                             <label className="p-2">Minutes</label>
                                         </div>
@@ -140,7 +174,7 @@ export const TimerSetting = (props: any) => {
                                         <div className="d-flex flex-lg-row">
                                             <input type="number" className="form-control"
                                                 id="long-break-minutes"
-                                                value={timerSetting.longBreakMinutes}
+                                                value={currentSetting.longBreakMinutes}
                                                 onChange={timerSettingUpdating} />
                                             <label className="p-2">Minutes</label>
                                         </div>
@@ -151,7 +185,7 @@ export const TimerSetting = (props: any) => {
                                         <div className="d-flex flex-lg-row">
                                             <input type="number" className="form-control"
                                                 id="break-interval"
-                                                value={timerSetting.longBreakInterval}
+                                                value={currentSetting.longBreakInterval}
                                                 onChange={timerSettingUpdating} />
                                             <label className="p-2">Sessions</label>
                                         </div>

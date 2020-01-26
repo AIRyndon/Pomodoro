@@ -7,6 +7,7 @@ import { ITodoItem, TodoItem } from './TodoItem';
 import toast from 'toasted-notes';
 import 'toasted-notes/src/styles.css';
 import './TodoList.css';
+import v4 from 'uuid';
 
 interface ITodoList {
     id?: number,
@@ -208,8 +209,7 @@ export const TodoList = (props: any) => {
                                             <i className="fas fa-thumbtack"></i>
                                         </Button>
                                     </InputGroupAddon>
-                                    <Input id={list.id as unknown as string}
-                                        value={list.description}
+                                    <Input value={list.description}
                                         onChange={listUpdating}
                                         onBlur={() => updateList(listToUpdate, list.id)} />
                                     <InputGroupAddon addonType="append">
@@ -234,7 +234,7 @@ export const TodoList = (props: any) => {
                             <CardBody>
                                 {
                                     list.todoItems.map((item: ITodoItem) =>
-                                        (<TodoItem key={item.id} todoListId={list.id}
+                                        (<TodoItem key={v4()} todoListId={list.id}
                                             {...item}
                                             delete={deleteTodoItem}
                                         />))

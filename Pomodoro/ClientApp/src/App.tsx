@@ -9,16 +9,14 @@ import { ApplicationPaths } from './components/api-authorization/ApiAuthorizatio
 import './custom.css'
 import { TimerSetting } from './components/TimerSetting';
 
-export default class App extends Component
-{
+export default class App extends Component {
     static displayName = App.name;
 
-    render()
-    {
+    render() {
         return (
             <Layout>
                 <Route exact path='/' component={Home} />
-                <AuthorizeRoute path='/timer-settings' component={TimerSetting}/>
+                <AuthorizeRoute path='/timer-settings' component={TimerSetting} />
                 <AuthorizeRoute path='/todo-lists' component={TodoList} />
                 <Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />
             </Layout>

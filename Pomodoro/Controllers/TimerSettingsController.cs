@@ -29,10 +29,10 @@ namespace Pomodoro.Controllers
 
         // GET: api/TimerSettings
         [HttpGet]
-        public async Task<ActionResult<TimerSetting>> GetTimerSetting()
+        public async Task<ActionResult<List<TimerSetting>>> GetTimerSetting()
         {
             var settings = await timerSetting.GetFilteredAsync(t => t.AppUserId == userId);
-            return settings.FirstOrDefault();
+            return settings.ToList();
         }
 
         // GET: api/TimerSettings/5

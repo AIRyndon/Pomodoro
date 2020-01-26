@@ -66,7 +66,7 @@ export const TodoItem: any = (props: any) =>
                         onTouchEnd={(event) => updateTodoItem(event, props.id)} />
                 </InputGroupText>
             </InputGroupAddon>
-            <Input id={props.id} defaultValue={props.description}
+            <Input defaultValue={props.description}
                 onChange={todoItemChanged}
                 onBlur={(event) => updateTodoItem(event, props.id)} />
             <InputGroupAddon addonType="append">
