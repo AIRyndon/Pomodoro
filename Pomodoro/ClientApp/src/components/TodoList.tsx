@@ -1,4 +1,5 @@
-﻿import React, { useState, useEffect } from 'react';
+﻿import v4 from 'uuid';
+import React, { useState, useEffect } from 'react';
 import { Button, InputGroup, Input, InputGroupAddon, Card, CardHeader, CardBody } from 'reactstrap';
 import { apiRequest } from '../helpers/AuthorizeTokenHelper';
 import authService from './api-authorization/AuthorizeService';
@@ -7,7 +8,6 @@ import { ITodoItem, TodoItem } from './TodoItem';
 import toast from 'toasted-notes';
 import 'toasted-notes/src/styles.css';
 import './TodoList.css';
-import v4 from 'uuid';
 
 interface ITodoList {
     id?: number,

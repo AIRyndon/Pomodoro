@@ -1,10 +1,10 @@
 ﻿import React, { useState, useEffect } from 'react'
-import './Timer.css'
-import './TimerSetting.css'
 import { apiRequest } from '../helpers/AuthorizeTokenHelper';
 import { Button } from 'reactstrap';
 import authService from './api-authorization/AuthorizeService';
 import { Timer } from './Timer';
+import './Timer.css'
+import './TimerSetting.css'
 
 export interface ITimerSetting {
     id?: number,
@@ -45,6 +45,9 @@ export const TimerSetting = (props: any) => {
 
     const timerSettingUpdating = async (event: any) => {
         switch (event.target.id) {
+            case 'description':
+                setCurrentSetting({ ...currentSetting, description: event.target.value });
+                break;
             case 'session-minutes':
                 setCurrentSetting({ ...currentSetting, sessionMinutes: parseInt(event.target.value) });
                 break;
@@ -63,7 +66,7 @@ export const TimerSetting = (props: any) => {
     const toggleSettingsView = async () => {
 
         setShowSettings(!showSettings);
-        await updateTimerSetting();      
+        await updateTimerSetting();
     }
 
     //TODO - continue on finishing timer setting logic
@@ -138,13 +141,12 @@ export const TimerSetting = (props: any) => {
                                 </Button>
                                 <div id="timer-input">
                                     <div className="form-group">
-                                        <label>Description</label>
+                                        <label>Name</label>
                                         <div className="d-flex flex-lg-row">
-                                            <input type="number" className="form-control"
-                                                id="session-minutes"
+                                            <input type="text" className="form-control"
+                                                id="description"
                                                 value={currentSetting.description}
                                                 onChange={timerSettingUpdating} />
-                                            <label className="p-2">Minutes</label>
                                         </div>
                                     </div>
                                     <div className="form-group">
