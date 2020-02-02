@@ -21,7 +21,7 @@ namespace Pomodoro.Controllers
         private readonly ITimerSettingRepo timerSetting;
         private readonly string userId;
 
-        public TimerSettingsController(ITimerSettingRepo timerSetting,IHttpContextAccessor http)
+        public TimerSettingsController(ITimerSettingRepo timerSetting, IHttpContextAccessor http)
         {
             this.timerSetting = timerSetting;
             userId = http.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);

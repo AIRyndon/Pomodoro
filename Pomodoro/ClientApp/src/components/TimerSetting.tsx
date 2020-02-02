@@ -1,12 +1,13 @@
-﻿import React, { useState, useEffect } from 'react'
-import { apiRequest } from '../helpers/AuthorizeTokenHelper';
-import { Button } from 'reactstrap';
+﻿import React, { useState, useEffect } from 'react';
 import authService from './api-authorization/AuthorizeService';
+import { apiRequest } from '../helpers/AuthorizeTokenHelper';
+import { Button, Input } from 'reactstrap';
 import { Timer } from './Timer';
 import './Timer.css'
 import './TimerSetting.css'
 
-export interface ITimerSetting {
+export interface ITimerSetting
+{
     id?: number,
     description?: string,
     sessionMinutes: number,
@@ -16,8 +17,8 @@ export interface ITimerSetting {
     activeSetting: boolean
 }
 
-export const TimerSetting = (props: any) => {
-
+export const TimerSetting = (props: any) =>
+{
     const [authenticated, setAuthentication] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
     const [timerSettings, setTimerSettings] = useState<ITimerSetting[]>([]);
@@ -31,20 +32,35 @@ export const TimerSetting = (props: any) => {
         activeSetting: true
     });
 
-    const getAllTimerSettings = async () => {
-
-        setAuthentication(await authService.isAuthenticated());
-        if (authenticated) {
-
+    const getAllTimerSettings = async () =>
+    {
+        if (await authService.isAuthenticated())
+        {
             let response: ITimerSetting[] = await apiRequest('api/timerSettings', 'get');
-            if (response.length > 0) {
+
+            if (response.length > 0)
+            {
                 setTimerSettings(response);
+                await updateCurrentSetting(response);
             }
         }
     }
 
-    const timerSettingUpdating = async (event: any) => {
-        switch (event.target.id) {
+    const updateCurrentSetting = async (settings: ITimerSetting[]) =>
+    {
+        settings.forEach(setting =>
+        {
+            if (setting.activeSetting)
+            {
+                setCurrentSetting(setting);
+            }
+        });
+    }
+
+    const timerSettingUpdating = async (event: any) =>
+    {
+        switch (event.target.id)
+        {
             case 'description':
                 setCurrentSetting({ ...currentSetting, description: event.target.value });
                 break;
@@ -63,41 +79,70 @@ export const TimerSetting = (props: any) => {
         }
     }
 
-    const toggleSettingsView = async () => {
+    const toggleSettingsView = async () =>
+    {
+        await getAllTimerSettings();
+        setShowSettings(!showSettings);
+    }
 
+    const changeActiveSetting = async (event: any) =>
+    {
+        console.log('at change active setting');
+        console.log(event.target.value);
+        const id: number = parseInt(event.target.value);
+        timerSettings.forEach(item =>
+        {
+            if (item.id === id)
+            {
+                console.log(item);
+                item.activeSetting = true;
+                console.log(item);
+                setCurrentSetting(item);
+                apiRequest('api/timerSettings', 'put', item.id, item);
+            } else if (item.activeSetting)
+            {
+                item.activeSetting = false;
+                apiRequest('api/timerSettings', 'put', item.id, item);
+            }
+        });
+    }
+
+    const closeAndUpdateSettings = async () =>
+    {
         setShowSettings(!showSettings);
         await updateTimerSetting();
     }
 
     //TODO - continue on finishing timer setting logic
-    const updateTimerSetting = async () => {
-
-        if (authenticated) {
-
-            if (currentSetting.id === 0) {
+    const updateTimerSetting = async () =>
+    {
+        if (authenticated)
+        {
+            if (currentSetting.id === 0)
+            {
                 await addTimerSetting();
             }
-            else {
+            else
+            {
                 await apiRequest('api/timerSettings', 'put', currentSetting.id, currentSetting);
             }
         }
     }
 
-    const addTimerSetting = async () => {
-
-        if (authenticated) {
-
-            let response: ITimerSetting = await apiRequest('api/timerSettings', 'post', 0, currentSetting);
-            console.log('added timer setting');
-            console.log(response);
+    const addTimerSetting = async () =>
+    {
+        if (authenticated)
+        {
+            const newSetting: ITimerSetting = { ...currentSetting, id: 0, activeSetting: true };
+            let response: ITimerSetting = await apiRequest('api/timerSettings', 'post', 0, newSetting);
             setCurrentSetting(response);
 
-            if (timerSettings.length > 0) {
-
-                timerSettings.forEach(async setting => {
-
-                    if (setting.activeSetting) {
-
+            if (timerSettings.length > 0)
+            {
+                timerSettings.forEach(async setting =>
+                {
+                    if (setting.activeSetting)
+                    {
                         setting.activeSetting = false;
                         await apiRequest('api/timerSettings', 'put', setting.id, setting);
                     }
@@ -108,11 +153,16 @@ export const TimerSetting = (props: any) => {
         }
     }
 
-    useEffect(() => {
+    useEffect(() =>
+    {
+        authService.isAuthenticated().then(response => setAuthentication(response))
+            .catch(e => console.log(e));
+
         getAllTimerSettings();
     }, []);
 
-    useEffect(() => {
+    useEffect(() =>
+    {
 
     }, [currentSetting]);
 
@@ -124,13 +174,27 @@ export const TimerSetting = (props: any) => {
                     <div className="col-lg-12">
                         <div className="card mb-2">
                             <div className="card-header py-2">
-                                <Button onClick={toggleSettingsView}
+                                <Button onClick={closeAndUpdateSettings}
                                     className="btn-light float-right"
                                     id="settings-back-button">
                                     <i className="fas fa-times"></i>
                                 </Button>
                             </div>
                             <div className="card-body">
+                                <h4 className="mb-4">Saved settings</h4>
+                                <Input onChange={(event) => changeActiveSetting(event)}
+                                    type="select"
+                                    value={currentSetting.id}>
+                                    {
+                                        timerSettings.map(setting =>
+                                            (<option
+                                                key={setting.id}
+                                                value={setting.id}>
+                                                {setting.description}
+                                            </option>))
+                                    }
+                                </Input>
+
                                 <p className="mb-4">Set how long you want your <code> Work</code> and <code> Break </code>
                                     should be.
                                 </p>

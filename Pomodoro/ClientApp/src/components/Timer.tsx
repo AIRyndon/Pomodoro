@@ -18,11 +18,10 @@ export const Timer = (props: any) =>
     const useInterval = (callback: any, isRunning: any) =>
     {
         const savedCallback: any = useRef();
-
         useEffect(() =>
         {
             savedCallback.current = callback;
-        }, [callback]);
+        });
 
         useEffect(() =>
         {
@@ -38,7 +37,6 @@ export const Timer = (props: any) =>
             }
         }, [isRunning]);
     }
-
 
     const tickTimer = () =>
     {
@@ -63,7 +61,6 @@ export const Timer = (props: any) =>
     {
         let clockHandColor = '#1fbb39';
         let percentRatio = 0.277777777777778; //percentRatio is percentage / degree(100/360)
-        //let percent = 100 - (totalSeconds - pieClock) / totalSeconds * 100;
         let percent = pieClock / totalSeconds * 100;
         let degree = percent / percentRatio;
 
@@ -100,18 +97,15 @@ export const Timer = (props: any) =>
         console.log("Setup Timer");
         if (onSession)
         {
-            console.log("session");
             setTotalSeconds(props.timerSetting.sessionMinutes * 60);
             setTimerCounter(props.timerSetting.sessionMinutes * 60);
 
         } else if (sessionCount % props.timerSetting.longBreakInterval === 0)
         {
-            console.log("Long break");
             setTotalSeconds(props.timerSetting.longBreakMinutes * 60);
             setTimerCounter(props.timerSetting.longBreakMinutes * 60);
         } else
         {
-            console.log("short break");
             setTotalSeconds(props.timerSetting.shortBreakMinutes * 60);
             setTimerCounter(props.timerSetting.shortBreakMinutes * 60);
         }
@@ -145,7 +139,7 @@ export const Timer = (props: any) =>
     useEffect(() =>
     {
         setSessionCount(0);
-    },[props.timerSetting.longBreakInterval])
+    }, [props.timerSetting.longBreakInterval])
 
     useInterval(tickTimer, timerStarted);
 
@@ -159,6 +153,7 @@ export const Timer = (props: any) =>
                         <span id="clock-minutes">{`${timerMinutes < 10 ? '0' + timerMinutes : timerMinutes}`}</span>
                         <span>:</span>
                         <span id="clock-seconds">{`${timerSeconds < 10 ? '0' + timerSeconds : timerSeconds}`}</span>
+
                     </div>
                     <div className="timer-buttons">
                         <div className="btn-group" role="group">
